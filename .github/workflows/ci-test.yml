@@ -9,7 +9,7 @@ on:
       - src/loggink/*
       - pyproject.toml
       - pixi.lock
-      - .github/workflows/test.yml
+      - .github/workflows/ci-test.yml
   pull_request:
     branches: [ master ]
     paths:
@@ -17,7 +17,7 @@ on:
       - src/loggink/*
       - pyproject.toml
       - pixi.lock
-      - .github/workflows/test.yml
+      - .github/workflows/ci-test.yml
 
 jobs:
   test:
