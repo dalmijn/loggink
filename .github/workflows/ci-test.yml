@@ -36,8 +36,6 @@ jobs:
         include:
           - os: ubuntu-latest
             label: linux-64
-          - os: windows-latest
-            label: win-64
 
     name: ${{ matrix.label }} - py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
@@ -52,15 +50,11 @@ jobs:
       - name: Setup pixi env
         uses: prefix-dev/setup-pixi@v0.8.13
         with:
-          pixi-version: "v0.49.0"
+          pixi-version: "v0.55.0"
           environments: test-py${{ matrix.python-version }}
           locked: false
           cache: true
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
-
-      - name: Create testdata
-        run: |
-          pixi run -e test-py${{ matrix.python-version }} generate-data
 
       - name: Test
         run: |
