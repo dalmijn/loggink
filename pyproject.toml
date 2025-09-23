@@ -1,0 +1,180 @@
+## Build system related stuff
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["loggink*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "loggink.version.__version__"}
+
+## Project related stuff
+[project]
+name = "loggink"
+dynamic = ['version']
+
+authors = [
+    {name = "B.W. Dalmijn", email = "brendan.dalmijn@deltares.nl"},
+]
+maintainers = [
+    {name = "B.W. Dalmijn", email = "brendan.dalmijn@deltares.nl"},
+]
+
+description = "Simple python logging"
+readme = "README.md"
+license = "MIT"
+
+requires-python = ">=3.11"
+dependencies = []
+
+keywords = ["Logging", "Python"]
+classifiers = [
+# How mature is this project? Common values are
+#   3 - Alpha
+#   4 - Beta
+#   5 - Production/Stable
+'Development Status :: 4 - Beta',
+
+# Indicate who your project is intended for
+'Intended Audience :: End Users/Desktop',
+'Intended Audience :: Developers',
+'Intended Audience :: Science/Research',
+
+# Topic of the package
+'Topic :: System :: Logging',
+
+# Language
+'Natural Language :: English',
+
+# OS
+'Operating System :: OS Independent',
+
+# Specify the Python versions you support here. In particular, ensure
+# that you indicate whether you support Python 2, Python 3 or both.
+'Programming Language :: Python :: 3',
+'Programming Language :: Python :: 3.11',
+'Programming Language :: Python :: 3.12',
+'Programming Language :: Python :: 3.13',
+]
+
+[project.optional-dependencies] # Optional
+all = [
+    "setuptools>=61.0.0",
+]
+dev = [
+    "pre-commit",
+    "ruff",
+]
+test = [
+	"pytest>=2.7.3",
+	"pytest-cov",
+    "pytest-mock",
+	"responses",
+]
+
+[project.urls]
+"Bug Reports" = "https://github.com/dalmijn/loggink/issues"
+"Source" =  "https://github.com/dalmijn/loggink"
+
+## Some stuff for pytest and coverage
+[tool.pytest.ini_options]
+testpaths = [
+    "test",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["./src"]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+]
+ignore_errors = true
+
+[tool.coverage.html]
+directory = ".cov"
+
+[tool.ruff]
+line-length = 88
+exclude = ["docs/**"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "PT", "D"]
+ignore = ["B904", "D105", "D211", "D213", "D301", "E712", "E741"]
+
+[tool.ruff.lint.per-file-ignores]
+"test/**" = ["D100", "D101", "D102", "D103", "D104"]
+"test/conftest.py" = ["E402"]
+"src/loggink/__init__.py" = ["E402", "F401", "F403"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+## Pixi related stuff
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["linux-64", "win-64"]
+
+[tool.pixi.tasks]
+# Installation
+install = { depends-on = ["install-pre-commit"] }
+install-pre-commit = "pre-commit install"
+
+# Repo related tasks
+lint = { cmd = ["pre-commit", "run", "--all"] }
+
+# Testing
+test = { cmd = ["pytest"] }
+test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
+test-cov = { cmd = ["pytest", "--verbose", "--cov=loggink", "--cov-report", "xml"] }
+test-cov-html = { cmd = ["pytest", "--verbose", "--cov", "--cov-report", "html"] }
+
+# Clean up (some of) the temporary files
+clean = { depends-on = [
+    "clean-build",
+    "clean-dist",
+] }
+clean-build = { cmd = ["rm", "-rf", "build"] }
+clean-dist = { cmd = ["rm", "-rf", "dist"] }
+
+# Specify conda only deps
+[tool.pixi.dependencies]
+pip = "*"
+
+[tool.pixi.pypi-dependencies]
+loggink = { path = ".", editable = true }
+
+# Extra python environments
+[tool.pixi.feature.py313.dependencies]
+python = "3.13.*"
+
+[tool.pixi.feature.py312.dependencies]
+python = "3.12.*"
+
+[tool.pixi.feature.py311.dependencies]
+python = "3.11.*"
+
+# Environments
+[tool.pixi.environments]
+default = { features = ["py313", "all", "dev", "test"] }
+slim = { features = ["all"] }
+test-py313 = { features = ["py313", "all", "test"] }
+test-py312 = { features = ["py312", "all", "test"] }
+test-py311 = { features = ["py311", "all", "test"] }
